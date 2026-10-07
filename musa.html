@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Frog's Number Hop</title>
+<style>
+:root{--bg:#CFEFFF;--card:#fff;--ink:#1E2A4A;--soft:#5B6B8C;--green:#2FAE6B;--green-d:#1E8A52;--sun:#FFC93C;--coral:#E8553F;--stone:#EAF2FB;--line:#B9D3EA;--ok:#E3F7EC;--bad:#FDE8E4;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12203A;--card:#1D2D4F;--ink:#F2F6FF;--soft:#A9B8D6;--stone:#2A3D66;--line:#3E5588;--ok:#17402D;--bad:#4A2420}}
+:root[data-theme="dark"]{--bg:#12203A;--card:#1D2D4F;--ink:#F2F6FF;--soft:#A9B8D6;--stone:#2A3D66;--line:#3E5588;--ok:#17402D;--bad:#4A2420}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:ui-rounded,"Avenir Next Rounded","Trebuchet MS","Segoe UI",sans-serif;-webkit-user-select:none;user-select:none}
+button{font:inherit;color:inherit;touch-action:manipulation;cursor:pointer}
+[hidden]{display:none!important}
+main{max-width:620px;margin:0 auto;padding:16px 14px 32px}
+h1{font-size:clamp(30px,7vw,44px);margin:6px 0;line-height:1.1}
+h2{font-size:24px;margin:0 0 6px}
+.card{background:var(--card);border-radius:24px;padding:18px;box-shadow:0 4px 0 var(--line)}
+.big{font-size:72px;line-height:1;text-align:center}
+.btn{border:0;border-radius:18px;padding:14px 22px;font-weight:800;font-size:20px;background:var(--green);color:#fff;box-shadow:0 5px 0 var(--green-d)}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--green-d)}
+.btn.alt{background:var(--sun);color:#1E2A4A;box-shadow:0 5px 0 #D9A400}
+.btn.alt:active{box-shadow:0 2px 0 #D9A400}
+.btn[disabled]{opacity:.4}
+.center{text-align:center}
+.soft{color:var(--soft)}
+.top{display:flex;justify-content:space-between;align-items:center;font-weight:800;margin-bottom:8px}
+.dots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+.dot{width:30px;height:30px;border-radius:50%;border:3px solid var(--line);background:var(--card);font-size:13px;font-weight:800;padding:0}
+.dot.done{background:var(--green);border-color:var(--green-d);color:#fff}
+.dot.cur{border-color:var(--ink);transform:scale(1.15)}
+.trail{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:14px 0 8px}
+.stone{width:clamp(54px,15vw,84px);height:clamp(54px,15vw,84px);border-radius:50%;background:var(--stone);border:3px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:clamp(18px,5vw,28px);padding:0}
+.stone.gap{background:#FFF3C4;border:4px dashed var(--sun);color:#1E2A4A}
+.stone.gap.on{border-style:solid;border-color:var(--coral);transform:scale(1.1)}
+.stone.sm{width:56px;height:56px;font-size:19px}
+.tag{display:inline-block;background:var(--sun);color:#1E2A4A;border-radius:12px;padding:3px 10px;font-weight:800;font-size:14px}
+.tag.star{background:#8E5CF0;color:#fff}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:360px;margin:12px auto}
+.key{height:56px;border-radius:16px;border:0;background:var(--stone);font-size:26px;font-weight:800;box-shadow:0 4px 0 var(--line)}
+.key:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.nav{display:flex;justify-content:space-between;gap:10px}
+.msg{min-height:24px;text-align:center;font-weight:700;color:var(--coral);margin:4px 0}
+.wrong{background:var(--bad);border-radius:18px;padding:12px;margin:10px 0}
+.right{background:var(--ok);border-radius:18px;padding:10px 12px;margin:10px 0;font-weight:700}
+.wrong .trail{margin:8px 0}
+.stone.sm.no{background:var(--bad);border:3px solid var(--coral);flex-direction:column;font-size:14px;line-height:1.1}
+.stone.sm.no s{color:var(--coral)}
+.stone.sm.no b{color:var(--green-d);font-size:20px}
+.hop{display:inline-block;animation:hop 1.6s ease-in-out infinite}
+@keyframes hop{50%{transform:translateY(-14px)}}
+@media (prefers-reduced-motion:reduce){.hop{animation:none}}
+</style>
+</head>
+<body>
+<main>
+
+<section id="s-start" class="card center">
+  <div class="big hop">🐸</div>
+  <h1>Frog's Number Hop</h1>
+  <p class="soft" style="font-size:19px">Help the frog hop across the stones! Each trail follows one rule. Find the missing numbers.</p>
+  <p class="soft">10 trails &middot; the last one is a Star Challenge</p>
+  <button class="btn" id="go">Start hopping</button>
+</section>
+
+<section id="s-quiz" hidden>
+  <div class="top"><span id="qn"></span><span id="lv"></span></div>
+  <div class="dots" id="dots"></div>
+  <div class="card">
+    <div id="tagrow" class="center"></div>
+    <div class="trail" id="trail"></div>
+    <p class="center soft" id="hint" style="margin:6px 0 0"></p>
+    <div class="pad" id="pad"></div>
+    <div class="msg" id="msg"></div>
+    <div class="nav">
+      <button class="btn alt" id="back">Back</button>
+      <button class="btn" id="next">Next</button>
+    </div>
+  </div>
+</section>
+
+<section id="s-result" hidden>
+  <div class="card center">
+    <div class="big" id="r-emoji"></div>
+    <h1 id="r-score"></h1>
+    <p id="r-msg" style="font-size:19px;font-weight:700"></p>
+  </div>
+  <div id="r-list"></div>
+  <div class="center" style="margin-top:16px">
+    <button class="btn" id="again">Try again with new questions</button>
+  </div>
+</section>
+
+</main>
+<script>
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[R(0,a.length-1)];
+const seq=(s,d)=>Array.from({length:5},(_,i)=>s+d*i);
+const BL1=[[2],[3],[4]], BL2=[[2,4],[3,4],[1,3],[2,3]];
+const up=d=>`Counting forwards in ${d}s`, down=d=>`Counting backwards in ${d}s`;
+
+const GEN=[
+ ()=>{const d=pick([2,3,4,5,10]);return[seq(d*R(1,5),d),pick(BL1),up(d)]},
+ ()=>{const d=pick([6,7,8,9]);return[seq(d*R(1,4),d),pick(BL1),up(d)+` (${d} times table)`]},
+ ()=>[seq(R(12,900),10),pick(BL1),up(10)],
+ ()=>[seq(R(2,95)*10,100),pick(BL1),up(100)],
+ ()=>[seq(R(1,5)*1000,1000),pick(BL2),up(1000)],
+ ()=>{const d=pick([5,10]);return[seq(d*R(14,30),-d),pick(BL2),down(d)]},
+ ()=>{const d=pick([25,50]);return[seq(d*R(16,30),-d),pick(BL2),down(d)]},
+ ()=>{const d=pick([2,3,4,5,6]),b=pick([100,200,300,500,1000,2000,5000]);return[seq(b-R(2,3)*d,d),pick(BL2),up(d)+` across ${b}`]},
+ ()=>{const d=pick([100,1000]);return[seq(d*R(5,9),-d),pick(BL2),down(d)]},
+ ()=>{const d=pick([2,3,4,5]);return[seq(d*R(1,3),-d),pick([[3],[4],[3,4],[2,4]]),down(d)+" past zero"]}
+];
+const HINTS=["What is the rule? Tell it out loud!","Look at two stones side by side. How far is the hop?","Which times table can help you?","Is the frog hopping up or down?","Check by reading the whole trail again.","How big is each hop?"];
+const used=new Set();
+let Q=[],A=[],cur=0,act=0,warned=false;
+
+function makeSet(){
+  const out=[],here=new Set();
+  GEN.forEach((g,lv)=>{
+    let q,tries=0;
+    do{
+      const [items,blanks,rule]=g();
+      q={items,blanks,rule,ans:blanks.map(i=>items[i]),lv};
+      q.sig=items.join(',')+'|'+blanks.join(',');
+      tries++;
+    }while((used.has(q.sig)||here.has(q.sig))&&tries<80);
+    used.add(q.sig);here.add(q.sig);out.push(q);
+  });
+  return out;
+}
+const $=id=>document.getElementById(id);
+function show(id){["s-start","s-quiz","s-result"].forEach(s=>$(s).hidden=s!==id);window.scrollTo(0,0)}
+const full=i=>A[i].every(v=>v!==""&&v!=="-");
+
+function start(){
+  Q=makeSet();A=Q.map(q=>q.blanks.map(()=>""));cur=0;act=0;warned=false;
+  show("s-quiz");draw();
+}
+function draw(){
+  const q=Q[cur],last=cur===Q.length-1;
+  $("qn").textContent=`Trail ${cur+1} of ${Q.length}`;
+  $("lv").innerHTML=q.lv===9?'<span class="tag star">⭐ Star Challenge</span>':'';
+  $("tagrow").innerHTML="";
+  $("dots").innerHTML=Q.map((_,i)=>`<button class="dot ${full(i)?'done':''} ${i===cur?'cur':''}" data-i="${i}" aria-label="Go to trail ${i+1}">${i+1}</button>`).join("");
+  let bi=0;
+  $("trail").innerHTML=q.items.map((v,i)=>{
+    const k=q.blanks.indexOf(i);
+    if(k<0)return `<div class="stone">${v}</div>`;
+    const t=A[cur][k];
+    return `<button class="stone gap ${k===act?'on':''}" data-k="${k}" aria-label="Missing number">${t===""?"?":t}</button>`;
+  }).join("");
+  $("hint").textContent=HINTS[(cur+q.lv)%HINTS.length];
+  $("back").style.visibility=cur===0?"hidden":"visible";
+  $("next").textContent=last?"Finish ✅":"Next";
+  $("msg").textContent="";
+}
+function key(k){
+  warned=false;
+  let t=A[cur][act];
+  if(k==="del")t=t.slice(0,-1);
+  else if(k==="neg")t=t.startsWith("-")?t.slice(1):"-"+t;
+  else if(t.replace("-","").length<5)t+=k;
+  A[cur][act]=t;draw();
+}
+function build(){
+  $("pad").innerHTML=[1,2,3,4,5,6,7,8,9].map(n=>`<button class="key" data-key="${n}">${n}</button>`).join("")
+   +`<button class="key" data-key="neg" aria-label="plus or minus">+/−</button><button class="key" data-key="0">0</button><button class="key" data-key="del" aria-label="delete">⌫</button>`;
+}
+function finish(){
+  const blank=Q.map((_,i)=>i).filter(i=>!full(i));
+  if(blank.length&&!warned){
+    warned=true;
+    $("msg").textContent=`Trail ${blank.map(i=>i+1).join(", ")} not finished. Tap the number to go back, or tap Finish again to check.`;
+    return;
+  }
+  result();
+}
+function result(){
+  const wrong=[];let score=0;
+  Q.forEach((q,i)=>{
+    const ok=q.ans.every((a,k)=>A[i][k]!==""&&parseInt(A[i][k],10)===a);
+    if(ok)score++;else wrong.push(i);
+  });
+  $("r-emoji").textContent=score===10?"🏆":score>=8?"🌟":score>=5?"🐸":"💪";
+  $("r-score").textContent=`${score} out of ${Q.length}`;
+  $("r-msg").textContent=score===10?"Perfect! The frog crossed every trail!":score>=8?"Brilliant hopping! Just a few to look at.":score>=5?"Good job! Let's look at the tricky ones.":"Great effort! Every mistake helps you learn. Look at these and try again.";
+  let h="";
+  if(!wrong.length)h='<div class="right">No mistakes. Amazing work, Musa!</div>';
+  else{
+    h='<h2 style="margin-top:16px">Let\'s check these</h2>';
+    wrong.forEach(i=>{
+      const q=Q[i];
+      h+=`<div class="wrong"><b>Trail ${i+1}</b> <span class="soft">${q.rule}</span><div class="trail">`+
+      q.items.map((v,p)=>{
+        const k=q.blanks.indexOf(p);
+        if(k<0)return `<div class="stone sm">${v}</div>`;
+        const mine=A[i][k];
+        const good=mine!==""&&parseInt(mine,10)===q.ans[k];
+        if(good)return `<div class="stone sm" style="background:var(--ok);border-color:var(--green)">${v}</div>`;
+        return `<div class="stone sm no"><s>${mine===""?"–":mine}</s><b>${v}</b></div>`;
+      }).join("")+`</div><span class="soft">Crossed out is your answer. Green is the correct one.</span></div>`;
+    });
+  }
+  $("r-list").innerHTML=h;
+  show("s-result");
+}
+build();
+$("go").onclick=start;
+$("again").onclick=start;
+$("back").onclick=()=>{if(cur>0){cur--;act=0;warned=false;draw()}};
+$("next").onclick=()=>{if(cur<Q.length-1){cur++;act=0;warned=false;draw()}else finish()};
+$("dots").onclick=e=>{const b=e.target.closest("[data-i]");if(b){cur=+b.dataset.i;act=0;warned=false;draw()}};
+$("trail").onclick=e=>{const b=e.target.closest("[data-k]");if(b){act=+b.dataset.k;draw()}};
+$("pad").onclick=e=>{const b=e.target.closest("[data-key]");if(b)key(b.dataset.key)};
+</script>
+</body>
+</html>
