@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Number Workshop</title>
+<style>
+:root{--bg:#E6E4FF;--card:#fff;--ink:#1E2A4A;--soft:#5B6B8C;--pri:#6C4DF0;--pri-d:#4C33B8;--sun:#FFC93C;--coral:#E8553F;--green:#2FAE6B;--stone:#EEF0FB;--line:#C3C0EE;--ok:#E3F7EC;--bad:#FDE8E4;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1A1740;--card:#272258;--ink:#F2F4FF;--soft:#B1B6DA;--stone:#352F70;--line:#4B4491;--ok:#17402D;--bad:#4A2420}}
+:root[data-theme="dark"]{--bg:#1A1740;--card:#272258;--ink:#F2F4FF;--soft:#B1B6DA;--stone:#352F70;--line:#4B4491;--ok:#17402D;--bad:#4A2420}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:ui-rounded,"Avenir Next Rounded","Trebuchet MS","Segoe UI",sans-serif;-webkit-user-select:none;user-select:none}
+button{font:inherit;color:inherit;touch-action:manipulation;cursor:pointer}
+[hidden]{display:none!important}
+main{max-width:620px;margin:0 auto;padding:16px 14px 32px}
+h1{font-size:clamp(30px,7vw,44px);margin:6px 0;line-height:1.1}
+h2{font-size:24px;margin:0 0 6px;line-height:1.3}
+.card{background:var(--card);border-radius:24px;padding:18px;box-shadow:0 4px 0 var(--line)}
+.big{font-size:72px;line-height:1;text-align:center}
+.btn{border:0;border-radius:18px;padding:14px 22px;font-weight:800;font-size:20px;background:var(--pri);color:#fff;box-shadow:0 5px 0 var(--pri-d)}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--pri-d)}
+.btn.alt{background:var(--sun);color:#1E2A4A;box-shadow:0 5px 0 #D9A400}
+.btn.alt:active{box-shadow:0 2px 0 #D9A400}
+.who{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.who .btn{min-width:200px;font-size:22px}
+.center{text-align:center}.soft{color:var(--soft)}
+.top{display:flex;justify-content:space-between;align-items:center;font-weight:800;margin-bottom:8px}
+.dots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+.dot{width:30px;height:30px;border-radius:50%;border:3px solid var(--line);background:var(--card);font-size:13px;font-weight:800;padding:0}
+.dot.done{background:var(--pri);border-color:var(--pri-d);color:#fff}
+.dot.cur{border-color:var(--ink);transform:scale(1.15)}
+.tag{display:inline-block;background:#8E5CF0;color:#fff;border-radius:12px;padding:3px 10px;font-weight:800;font-size:14px}
+.tiles{display:flex;gap:8px;justify-content:center;margin:12px 0}
+.tile{width:clamp(48px,14vw,72px);height:clamp(60px,17vw,88px);border-radius:14px;background:var(--stone);border:3px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:clamp(26px,8vw,44px)}
+.tile.hi{background:#FFF3C4;border-color:var(--coral);color:#1E2A4A;transform:translateY(-6px)}
+.answer{margin:10px auto;min-width:150px;max-width:240px;text-align:center;border:4px dashed var(--sun);border-radius:18px;background:#FFF3C4;color:#1E2A4A;font-size:36px;font-weight:900;padding:6px 12px;min-height:60px}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:360px;margin:10px auto}
+.key{height:54px;border-radius:16px;border:0;background:var(--stone);font-size:26px;font-weight:800;box-shadow:0 4px 0 var(--line)}
+.key:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.opt{height:72px;border-radius:18px;border:4px solid var(--line);background:var(--stone);font-size:30px;font-weight:900}
+.opt.sel{background:#FFF3C4;border-color:var(--coral);color:#1E2A4A}
+.nav{display:flex;justify-content:space-between;gap:10px}
+.msg{min-height:24px;text-align:center;font-weight:700;color:var(--coral);margin:4px 0}
+.wrong{background:var(--bad);border-radius:18px;padding:14px;margin:10px 0}
+.wrong p{margin:6px 0}
+.yours{color:var(--coral);text-decoration:line-through;font-weight:800}
+.right{color:var(--green);font-weight:900}
+.okbox{background:var(--ok);border-radius:18px;padding:12px;margin:10px 0;font-weight:700}
+.hop{display:inline-block;animation:hop 1.6s ease-in-out infinite}
+@keyframes hop{50%{transform:translateY(-14px)}}
+@media (prefers-reduced-motion:reduce){.hop{animation:none}}
+</style>
+</head>
+<body>
+<main>
+<section id="s-start" class="card center">
+  <div class="big hop">🤖</div>
+  <h1>Number Workshop</h1>
+  <p class="soft" style="font-size:19px">Build numbers, find what each digit is worth, and count forwards and backwards!</p>
+  <p style="font-weight:800">Who is playing?</p>
+  <div class="who">
+    <button class="btn" data-p="Essa">Essa (Class III)</button>
+    <button class="btn alt" data-p="Musa">Musa (Class IV)</button>
+  </div>
+</section>
+
+<section id="s-quiz" hidden>
+  <div class="top"><span id="qn"></span><span id="lv"></span></div>
+  <div class="dots" id="dots"></div>
+  <div class="card">
+    <h2 class="center" id="qt"></h2>
+    <div class="tiles" id="tiles"></div>
+    <div id="ans"></div>
+    <div class="msg" id="msg"></div>
+    <div class="nav">
+      <button class="btn alt" id="back">Back</button>
+      <button class="btn" id="next">Next</button>
+    </div>
+  </div>
+</section>
+
+<section id="s-result" hidden>
+  <div class="card center">
+    <div class="big" id="r-emoji"></div>
+    <h1 id="r-score"></h1>
+    <p id="r-msg" style="font-size:19px;font-weight:700"></p>
+  </div>
+  <div id="r-list"></div>
+  <div class="center" style="margin-top:16px"><button class="btn" id="again">Try again with new questions</button></div>
+</section>
+</main>
+<script>
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[R(0,a.length-1)];
+const shuf=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+const PL=["ones","tens","hundreds","thousands"];
+let L,Q=[],A=[],cur=0,warned=false;
+const used=new Set();
+
+function distinct(len){return Number(shuf([1,2,3,4,5,6,7,8,9]).slice(0,len).join(""))}
+function lenOf(){return L.max>999?pick([3,4]):3}
+const mk=(text,ans,explain,extra)=>Object.assign({text,ans,explain,type:"num"},extra);
+
+function g10(u){
+  for(;;){
+    const N=R(L.max>999?1100:120,L.max-120),up=Math.random()<.5,a=up?N+u:N-u;
+    if(Math.floor(N/(u*10))!==Math.floor(a/(u*10)))continue;
+    return mk(`What is ${u} ${up?"more":"less"} than ${N}?`,a,`${u} ${up?"more":"less"} than ${N} is ${a}. Only the ${u===10?"tens":"hundreds"} digit changes.`,{tiles:String(N)});
+  }
+}
+function gSeq(){
+  const st=pick(L.max>999?[10,100,1000]:[10,100]),up=Math.random()<.5;
+  const N=up?R(10,L.max-3*st):R(3*st+10,L.max),d=up?st:-st;
+  return mk(`Counting ${up?"forwards":"backwards"} in ${st}s. What number comes next?  ${N}, ${N+d}, ${N+2*d}, ?`,N+3*d,`Each hop is ${st} ${up?"more":"less"}. ${N+2*d} ${up?"+":"-"} ${st} = ${N+3*d}.`);
+}
+function gDigit(){
+  const len=lenOf(),N=distinct(len),s=String(N),p=R(0,len-1),d=+s[len-1-p],ans=d*Math.pow(10,p);
+  const opts=shuf([...Array(len).keys()].map(k=>d*Math.pow(10,k)));
+  return mk(`What is the value of the digit ${d} in ${N}?`,ans,`The ${d} is in the ${PL[p]} place, so it is worth ${ans}.`,{type:"mc",opts,tiles:s,hi:len-1-p});
+}
+function gPlace(){
+  const len=lenOf(),N=distinct(len),s=String(N),p=R(0,len-1);
+  return mk(`Which digit is in the ${PL[p]} place of ${N}?`,+s[len-1-p],`Read the digits from the right: ones, tens, hundreds${len>3?", thousands":""}. The ${PL[p]} digit is ${s[len-1-p]}.`,{tiles:s});
+}
+function digitsZero(len){const a=[R(1,9)];for(let i=1;i<len;i++)a.push(R(0,9));return a}
+function gBuild(){
+  const len=lenOf(),ds=digitsZero(len);if(ds.slice(1).every(x=>x>0))ds[R(1,len-1)]=0;
+  const N=Number(ds.join(""));
+  const parts=ds.map((d,i)=>`${d} ${PL[len-1-i]}`).join(" + ");
+  return mk(`${parts} = ?`,N,`Put the digits in their places: ${ds.map((d,i)=>d*Math.pow(10,len-1-i)).join(" + ")} = ${N}.`);
+}
+function gExp(){
+  const len=lenOf(),ds=digitsZero(len),N=Number(ds.join(""));
+  const vals=ds.map((d,i)=>d*Math.pow(10,len-1-i)).filter(v=>v>0);
+  return mk(`${vals.join(" + ")} = ?`,N,`Add the parts together: ${vals.join(" + ")} = ${N}. A missing place means a zero.`);
+}
+function gDay(){
+  const ctx=pick(["price","page","house"]),k=pick([10,100]),up=Math.random()<.5;
+  const N=R(L.max>999?1100:150,L.max-150),a=up?N+k:N-k;
+  const t={price:`A toy costs AED ${N}. The price goes ${up?"UP":"DOWN"} by ${k}. What is the new price?`,
+   page:`You are on page ${N} of a big book. You turn ${k} pages ${up?"forward":"back"}. Which page are you on now?`,
+   house:`Your friend lives at house number ${N}. Another friend lives ${k} numbers ${up?"higher":"lower"}. What is that house number?`}[ctx];
+  return mk(t,a,`${N} ${up?"+":"-"} ${k} = ${a}.`);
+}
+function gStar(){
+  const m=L.max>999?8:8;let N,up,u;
+  if(Math.random()<.5){up=true;u=10;N=R(1,m)*100+90+R(0,9)}else{up=false;u=10;N=R(2,9)*100+R(0,9)}
+  if(L.max>999&&Math.random()<.5){u=100;up=Math.random()<.5;N=up?R(1,8)*1000+900+R(0,99):R(2,9)*1000+R(0,99)}
+  const a=up?N+u:N-u;
+  return mk(`Star Challenge: What is ${u} ${up?"more":"less"} than ${N}?`,a,`${N} ${up?"+":"-"} ${u} = ${a}. The number crosses into the next ${u===10?"hundred":"thousand"}, so more than one digit changes.`,{tiles:String(N),star:true});
+}
+const SLOTS=[()=>g10(10),()=>g10(100),gSeq,gDigit,gPlace,gBuild,gExp,gDay,gDigit,gStar];
+function makeSet(){
+  const here=new Set();
+  return SLOTS.map(f=>{let q,t=0;do{q=f();t++}while((used.has(q.text)||here.has(q.text))&&t<80);used.add(q.text);here.add(q.text);return q});
+}
+const $=id=>document.getElementById(id);
+function show(id){["s-start","s-quiz","s-result"].forEach(s=>$(s).hidden=s!==id);window.scrollTo(0,0)}
+const full=i=>A[i]!=="";
+
+function start(p){
+  if(p)L={name:p,max:p==="Essa"?999:9999};
+  Q=makeSet();A=Q.map(()=>"");cur=0;warned=false;show("s-quiz");draw();
+}
+function draw(){
+  const q=Q[cur],last=cur===Q.length-1;
+  $("qn").textContent=`Question ${cur+1} of ${Q.length}`;
+  $("lv").innerHTML=q.star?'<span class="tag">⭐ Star Challenge</span>':"";
+  $("dots").innerHTML=Q.map((_,i)=>`<button class="dot ${full(i)?"done":""} ${i===cur?"cur":""}" data-i="${i}" aria-label="Go to question ${i+1}">${i+1}</button>`).join("");
+  $("qt").textContent=q.text;
+  $("tiles").innerHTML=q.tiles?q.tiles.split("").map((c,i)=>`<div class="tile ${i===q.hi?"hi":""}">${c}</div>`).join(""):"";
+  if(q.type==="mc"){
+    $("ans").innerHTML=`<div class="opts">`+q.opts.map(o=>`<button class="opt ${A[cur]==String(o)?"sel":""}" data-o="${o}">${o}</button>`).join("")+`</div>`;
+  }else{
+    $("ans").innerHTML=`<div class="answer">${A[cur]===""?"?":A[cur]}</div><div class="pad">`+
+      [1,2,3,4,5,6,7,8,9].map(n=>`<button class="key" data-key="${n}">${n}</button>`).join("")+
+      `<button class="key" data-key="clr" aria-label="clear">C</button><button class="key" data-key="0">0</button><button class="key" data-key="del" aria-label="delete">⌫</button></div>`;
+  }
+  $("back").style.visibility=cur===0?"hidden":"visible";
+  $("next").textContent=last?"Finish ✅":"Next";
+  $("msg").textContent="";
+}
+function key(k){
+  warned=false;let t=A[cur];
+  if(k==="del")t=t.slice(0,-1);else if(k==="clr")t="";else if(t.length<5)t+=k;
+  A[cur]=t;draw();
+}
+function finish(){
+  const open=Q.map((_,i)=>i).filter(i=>!full(i));
+  if(open.length&&!warned){warned=true;$("msg").textContent=`Question ${open.map(i=>i+1).join(", ")} not answered yet. Tap its number to go back, or tap Finish again to check anyway.`;return}
+  result();
+}
+function result(){
+  const wrong=[];let score=0;
+  Q.forEach((q,i)=>{if(A[i]!==""&&parseInt(A[i],10)===q.ans)score++;else wrong.push(i)});
+  $("r-emoji").textContent=score===10?"🏆":score>=8?"🌟":score>=5?"🤖":"💪";
+  $("r-score").textContent=`${score} out of ${Q.length}`;
+  $("r-msg").textContent=score===10?`Perfect, ${L.name}! You are a number master!`:score>=8?`Brilliant, ${L.name}! Just a few to look at.`:score>=5?`Good job, ${L.name}! Let's look at the tricky ones.`:`Great effort, ${L.name}! Every mistake helps you learn. Have a look and try again.`;
+  let h="";
+  if(!wrong.length)h=`<div class="okbox">No mistakes. Amazing work, ${L.name}!</div>`;
+  else{
+    h='<h2 style="margin-top:16px">Let\'s check these</h2>';
+    wrong.forEach(i=>{const q=Q[i];
+      h+=`<div class="wrong"><b>Question ${i+1}</b><p>${q.text}</p><p>Your answer: <span class="yours">${A[i]===""?"no answer":A[i]}</span></p><p>Correct answer: <span class="right">${q.ans}</span></p><p class="soft">${q.explain}</p></div>`;
+    });
+  }
+  $("r-list").innerHTML=h;show("s-result");
+}
+document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>start(b.dataset.p));
+$("again").onclick=()=>start();
+$("back").onclick=()=>{if(cur>0){cur--;warned=false;draw()}};
+$("next").onclick=()=>{if(cur<Q.length-1){cur++;warned=false;draw()}else finish()};
+$("dots").onclick=e=>{const b=e.target.closest("[data-i]");if(b){cur=+b.dataset.i;warned=false;draw()}};
+$("ans").onclick=e=>{
+  const k=e.target.closest("[data-key]"),o=e.target.closest("[data-o]");
+  if(k)key(k.dataset.key);else if(o){A[cur]=o.dataset.o;warned=false;draw()}
+};
+</script>
+</body>
+</html>
