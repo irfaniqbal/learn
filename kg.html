@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ABC Fun - Kindergarten</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    overflow: hidden;
+    font-family: "Arial Rounded MT Bold", "Trebuchet MS", Arial, sans-serif;
+    background: #fff7ed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    transition: background .5s ease;
+  }
+
+  .top {
+    position: absolute;
+    top: 18px;
+    left: 0;
+    right: 0;
+    text-align: center;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(2rem, 7vw, 3.5rem);
+    color: #475569;
+  }
+
+  .instruction {
+    margin-top: 5px;
+    font-size: clamp(1rem, 3.5vw, 1.3rem);
+    color: #64748b;
+  }
+
+  .game {
+    width: min(92vw, 720px);
+    height: min(78vh, 760px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card {
+    width: min(78vw, 560px);
+    height: min(78vw, 560px);
+    max-height: 65vh;
+    max-width: 65vh;
+    border-radius: 50%;
+    border: 12px solid rgba(255,255,255,.82);
+    box-shadow:
+      0 15px 35px rgba(15,23,42,.16),
+      inset 0 0 0 3px rgba(255,255,255,.35);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+
+  .card:active {
+    transform: scale(.94);
+  }
+
+  .card.speaking {
+    animation: pop .65s ease;
+    box-shadow:
+      0 0 0 10px rgba(255,255,255,.7),
+      0 20px 40px rgba(15,23,42,.22);
+  }
+
+  .letter {
+    font-size: clamp(8rem, 30vw, 15rem);
+    line-height: .8;
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 7px 10px rgba(0,0,0,.14);
+  }
+
+  .picture {
+    font-size: clamp(5rem, 18vw, 9rem);
+    line-height: 1;
+    margin: 18px 0 8px;
+    filter: drop-shadow(0 4px 4px rgba(0,0,0,.1));
+  }
+
+  .word {
+    font-size: clamp(2rem, 7vw, 3.8rem);
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 4px 6px rgba(0,0,0,.15);
+  }
+
+  .tap-message {
+    margin-top: 18px;
+    font-size: clamp(1.1rem, 4vw, 1.5rem);
+    font-weight: bold;
+    color: #64748b;
+  }
+
+  .countdown {
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,.92);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+
+  .countdown.show {
+    display: flex;
+  }
+
+  .countdown-text {
+    font-size: clamp(1.4rem, 5vw, 2.2rem);
+    font-weight: bold;
+    color: #64748b;
+  }
+
+  .count {
+    font-size: clamp(8rem, 30vw, 15rem);
+    line-height: 1;
+    font-weight: 900;
+    color: #475569;
+    animation: countPop .9s ease;
+  }
+
+  .next-message {
+    font-size: clamp(1.3rem, 5vw, 2rem);
+    font-weight: bold;
+    color: #94a3b8;
+  }
+
+  .controls {
+    position: absolute;
+    bottom: 18px;
+    display: flex;
+    gap: 10px;
+  }
+
+  button {
+    border: 0;
+    border-radius: 999px;
+    padding: 12px 22px;
+    background: white;
+    color: #475569;
+    font: bold 1rem "Arial Rounded MT Bold", Arial, sans-serif;
+    box-shadow: 0 5px 15px rgba(15,23,42,.12);
+    cursor: pointer;
+  }
+
+  button:active {
+    transform: scale(.94);
+  }
+
+  @keyframes pop {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.09) rotate(-2deg); }
+    75% { transform: scale(.98) rotate(2deg); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes countPop {
+    0% { transform: scale(.4); opacity: .3; }
+    60% { transform: scale(1.12); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="top">
+  <h1>🌈 ABC Fun!</h1>
+  <div class="instruction">Tap the letter to hear it 🔊</div>
+</div>
+
+<div class="game">
+  <div id="card" class="card" aria-label="Alphabet letter">
+    <div id="letter" class="letter">A</div>
+    <div id="picture" class="picture">🍎</div>
+    <div id="word" class="word">Apple</div>
+  </div>
+
+  <div id="tapMessage" class="tap-message">👆 Tap me!</div>
+</div>
+
+<div id="countdown" class="countdown">
+  <div class="countdown-text">Great job! ⭐</div>
+  <div id="count" class="count">3</div>
+  <div class="next-message">Next letter coming...</div>
+</div>
+
+<div class="controls">
+  <button id="newBtn">🔀 New Letter</button>
+</div>
+
+<script>
+const alphabet = [
+  ["A", "🍎", "Apple"],
+  ["B", "⚽", "Ball"],
+  ["C", "🐱", "Cat"],
+  ["D", "🐶", "Dog"],
+  ["E", "🐘", "Elephant"],
+  ["F", "🐟", "Fish"],
+  ["G", "🦒", "Giraffe"],
+  ["H", "🏠", "House"],
+  ["I", "🍦", "Ice Cream"],
+  ["J", "🧃", "Juice"],
+  ["K", "🪁", "Kite"],
+  ["L", "🦁", "Lion"],
+  ["M", "🌙", "Moon"],
+  ["N", "👃", "Nose"],
+  ["O", "🍊", "Orange"],
+  ["P", "🐷", "Pig"],
+  ["Q", "👸", "Queen"],
+  ["R", "🌈", "Rainbow"],
+  ["S", "☀️", "Sun"],
+  ["T", "🐯", "Tiger"],
+  ["U", "☂️", "Umbrella"],
+  ["V", "🎻", "Violin"],
+  ["W", "🐳", "Whale"],
+  ["X", "🎼", "Xylophone"],
+  ["Y", "🪀", "Yo-yo"],
+  ["Z", "🦓", "Zebra"]
+];
+
+const colors = [
+  "#F59E8B", "#F6C85F", "#8DD3C7", "#7CC7F2",
+  "#B8A1E5", "#F4A6C1", "#81C784", "#FFB86B",
+  "#82CFFD", "#C4A7E7", "#F7A8A8", "#7DD3A8"
+];
+
+const card = document.getElementById("card");
+const letterEl = document.getElementById("letter");
+const pictureEl = document.getElementById("picture");
+const wordEl = document.getElementById("word");
+const countdown = document.getElementById("countdown");
+const countEl = document.getElementById("count");
+const tapMessage = document.getElementById("tapMessage");
+
+let voices = [];
+let currentIndex = -1;
+let busy = false;
+
+function loadVoices() {
+  voices = speechSynthesis.getVoices();
+}
+speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+
+function bestFemaleVoice() {
+  const english = voices.filter(v => /^en(-|_)/i.test(v.lang));
+
+  const preferred = [
+    "Samantha", "Karen", "Moira", "Tessa", "Victoria",
+    "Google UK English Female", "Google US English",
+    "Microsoft Zira", "Microsoft Jenny", "Microsoft Aria",
+    "Ava", "Allison", "Susan", "Fiona"
+  ];
+
+  for (const name of preferred) {
+    const voice = english.find(v =>
+      v.name.toLowerCase().includes(name.toLowerCase())
+    );
+    if (voice) return voice;
+  }
+
+  return english.find(v =>
+    /female|zira|jenny|samantha|karen|aria/i.test(v.name)
+  ) || english[0] || voices[0];
+}
+
+function pickRandomLetter() {
+  let index;
+
+  do {
+    index = Math.floor(Math.random() * alphabet.length);
+  } while (alphabet.length > 1 && index === currentIndex);
+
+  currentIndex = index;
+
+  const [letter, picture, word] = alphabet[index];
+
+  letterEl.textContent = letter;
+  pictureEl.textContent = picture;
+  wordEl.textContent = word;
+
+  card.style.background = colors[Math.floor(Math.random() * colors.length)];
+  card.setAttribute("aria-label", `${letter} for ${word}`);
+
+  tapMessage.textContent = "👆 Tap me!";
+}
+
+function speakCurrent() {
+  const [letter, , word] = alphabet[currentIndex];
+
+  speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(`${letter}. ${word}.`);
+  const voice = bestFemaleVoice();
+
+  if (voice) {
+    utterance.voice = voice;
+    utterance.lang = voice.lang;
+  } else {
+    utterance.lang = "en-US";
+  }
+
+  // Soft, friendly kindergarten voice.
+  utterance.rate = 0.78;
+  utterance.pitch = 1.12;
+  utterance.volume = 1;
+
+  utterance.onstart = () => {
+    card.classList.add("speaking");
+    tapMessage.textContent = `🔊 ${letter} for ${word}`;
+  };
+
+  utterance.onend = () => {
+    card.classList.remove("speaking");
+    startCountdown();
+  };
+
+  utterance.onerror = () => {
+    card.classList.remove("speaking");
+    startCountdown();
+  };
+
+  speechSynthesis.speak(utterance);
+}
+
+function startCountdown() {
+  busy = true;
+  countdown.classList.add("show");
+
+  let number = 3;
+  countEl.textContent = number;
+
+  const timer = setInterval(() => {
+    number--;
+
+    if (number > 0) {
+      countEl.textContent = number;
+
+      // Restart animation.
+      countEl.style.animation = "none";
+      void countEl.offsetWidth;
+      countEl.style.animation = "countPop .9s ease";
+    } else {
+      clearInterval(timer);
+      countdown.classList.remove("show");
+      pickRandomLetter();
+      busy = false;
+    }
+  }, 1000);
+}
+
+card.addEventListener("click", () => {
+  if (busy) return;
+  speakCurrent();
+});
+
+document.getElementById("newBtn").addEventListener("click", () => {
+  speechSynthesis.cancel();
+  countdown.classList.remove("show");
+  busy = false;
+  pickRandomLetter();
+});
+
+pickRandomLetter();
+</script>
+
+</body>
+</html>
