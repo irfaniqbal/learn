@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#fff8ef">
+<title>Happy ABC — Alphabet Sounds</title>
+<style>
+  :root { --ink:#354052; --paper:#fffaf3; --accent:#7357c8; }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; min-height:100vh; color:var(--ink);
+    font-family: "Trebuchet MS", "Arial Rounded MT Bold", system-ui, sans-serif;
+    background:
+      radial-gradient(circle at 10% 15%, #ffe7a8 0 5px, transparent 6px),
+      radial-gradient(circle at 92% 22%, #c8f0e5 0 7px, transparent 8px),
+      radial-gradient(circle at 15% 88%, #f7d6e7 0 6px, transparent 7px),
+      var(--paper);
+  }
+  .wrap { width:min(1100px, 100%); margin:0 auto; padding:clamp(18px,4vw,38px) 16px 30px; text-align:center; }
+  .sun { font-size:clamp(28px,5vw,46px); margin-bottom:2px; }
+  h1 { margin:0; font-size:clamp(30px,6vw,52px); letter-spacing:-1.5px; color:#5943a4; }
+  .subtitle { margin:9px 0 22px; font-size:clamp(15px,2.5vw,19px); color:#687184; }
+  .toolbar { display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; margin:0 auto 22px; }
+  button { font:inherit; cursor:pointer; touch-action:manipulation; }
+  .action {
+    border:0; border-radius:999px; padding:12px 18px; font-weight:800;
+    background:#e9e2ff; color:#5943a4; box-shadow:0 4px 0 #d1c5ff;
+    transition:transform .12s, box-shadow .12s;
+  }
+  .action:active { transform:translateY(3px); box-shadow:0 1px 0 #d1c5ff; }
+  .action.primary { background:#5943a4; color:white; box-shadow:0 4px 0 #3f2c84; }
+  .grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:clamp(8px,1.7vw,17px); }
+  .letter {
+    aspect-ratio:1; min-width:0; border:4px solid rgba(255,255,255,.92); border-radius:50%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0;
+    color:#263044; font-weight:900; font-size:clamp(28px,5.2vw,57px);
+    box-shadow:0 7px 0 rgba(42,48,65,.09), 0 8px 18px rgba(42,48,65,.08);
+    text-shadow:0 1px 0 rgba(255,255,255,.25);
+    transition:transform .15s ease, box-shadow .15s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .letter small { font-size:clamp(10px,1.5vw,14px); font-weight:800; letter-spacing:.5px; opacity:.78; }
+  .letter:hover { transform:translateY(-4px) rotate(-2deg); }
+  .letter:active { transform:scale(.94); }
+  .letter:focus-visible, .action:focus-visible { outline:4px solid #5943a4; outline-offset:4px; }
+  .letter.playing { outline:5px solid #5943a4; outline-offset:2px; transform:scale(1.04); }
+  .message { min-height:74px; margin:22px auto 0; padding:12px 18px; width:min(520px,100%); }
+  #bigLetter { font-size:clamp(26px,4vw,38px); font-weight:900; color:#5943a4; }
+  #hint { margin-top:4px; color:#687184; font-size:16px; }
+  .note { color:#858b98; font-size:12px; margin-top:10px; }
+  @media(max-width:700px) { .grid { grid-template-columns:repeat(5,minmax(0,1fr)); } }
+  @media(max-width:420px) { .grid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:9px; } .letter { border-width:3px; } }
+  @media(prefers-reduced-motion:reduce) { *,*::before,*::after { transition:none !important; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="sun" aria-hidden="true">🌈 ⭐ 🧸</div>
+  <h1>Happy ABC!</h1>
+  <p class="subtitle">Tap a colorful circle and let’s learn our letters!</p>
+  <div class="toolbar">
+    <button class="action primary" id="shuffleBtn" type="button">🔀 Mix the letters</button>
+    <button class="action" id="allBtn" type="button">🔊 Hear A–Z</button>
+    <button class="action" id="stopBtn" type="button">⏸ Stop</button>
+  </div>
+  <section class="grid" id="letterGrid" aria-label="Alphabet letters"></section>
+  <div class="message" aria-live="polite" aria-atomic="true">
+    <div id="bigLetter">Pick a letter!</div>
+    <div id="hint">Tap any circle to hear its name and sound.</div>
+  </div>
+  <p class="note">Sound works best with your device’s volume on. Voice depends on the voices available in your browser.</p>
+</main>
+<script>
+(() => {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  const colors = [
+    "#FFD6A5", "#CAFFBF", "#BDE0FE", "#FFC8DD", "#FDFFB6",
+    "#CDB4DB", "#A0E7E5", "#FDE2E4", "#D0F4DE", "#FAD2E1",
+    "#CDE7BE", "#E2D5F8", "#FFE5B4", "#B8E0D2", "#FFCAD4",
+    "#D7E3FC", "#FFF1A8", "#C9F0FF", "#E4C1F9", "#D3F8E2",
+    "#F8D7DA", "#C6DEF1", "#FDE2B8", "#D9ED92", "#F2C6DE", "#B9FBC0"
+  ];
+  const examples = {
+    A:"aah, as in apple", B:"buh, as in ball", C:"kuh, as in cat",
+    D:"duh, as in dog", E:"eh, as in egg", F:"fff, as in fish",
+    G:"guh, as in goat", H:"huh, as in hat", I:"ih, as in insect",
+    J:"juh, as in jam", K:"kuh, as in kite", L:"lll, as in lion",
+    M:"mmm, as in moon", N:"nnn, as in nest", O:"ah, as in octopus",
+    P:"puh, as in pig", Q:"kwuh, as in queen", R:"rrr, as in rabbit",
+    S:"sss, as in sun", T:"tuh, as in top", U:"uh, as in umbrella",
+    V:"vvv, as in van", W:"wuh, as in web", X:"ks, as in fox",
+    Y:"yuh, as in yo-yo", Z:"zzz, as in zebra"
+  };
+  const grid = document.getElementById("letterGrid");
+  const bigLetter = document.getElementById("bigLetter");
+  const hint = document.getElementById("hint");
+  let order = [...alphabet];
+  let currentButton = null;
+  let runToken = 0;
+
+  function chooseVoice() {
+    if (!("speechSynthesis" in window)) return null;
+    const voices = speechSynthesis.getVoices();
+    return voices.find(v => /female|samantha|ava|karen|victoria|zira|susan|aria|jenny/i.test(v.name) && /^en/i.test(v.lang))
+      || voices.find(v => /^en-US/i.test(v.lang))
+      || voices.find(v => /^en/i.test(v.lang))
+      || null;
+  }
+  function speak(text, rate = 0.82) {
+    if (!("speechSynthesis" in window)) {
+      hint.textContent = "Sorry, this browser does not support spoken audio.";
+      return Promise.resolve();
+    }
+    return new Promise(resolve => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
+      utterance.rate = rate;
+      utterance.pitch = 1.12;
+      utterance.volume = 1;
+      const voice = chooseVoice();
+      if (voice) utterance.voice = voice;
+      utterance.onend = resolve;
+      utterance.onerror = resolve;
+      speechSynthesis.speak(utterance);
+    });
+  }
+  function stopSpeech() {
+    runToken++;
+    if ("speechSynthesis" in window) speechSynthesis.cancel();
+    if (currentButton) currentButton.classList.remove("playing");
+    currentButton = null;
+  }
+  async function playLetter(letter, button) {
+    stopSpeech();
+    const token = runToken;
+    currentButton = button;
+    button.classList.add("playing");
+    bigLetter.textContent = letter + " " + letter.toLowerCase();
+    hint.textContent = examples[letter];
+    await speak(letter + ". " + examples[letter] + ".", 0.78);
+    if (token === runToken) {
+      button.classList.remove("playing");
+      currentButton = null;
+    }
+  }
+  function render() {
+    grid.replaceChildren();
+    order.forEach((letter, i) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "letter";
+      button.style.backgroundColor = colors[(alphabet.indexOf(letter) + i * 7) % colors.length];
+      button.setAttribute("aria-label", `Letter ${letter}. Tap to hear its sound.`);
+      button.innerHTML = `<span>${letter}</span><small>${letter.toLowerCase()}</small>`;
+      button.addEventListener("click", () => playLetter(letter, button));
+      grid.appendChild(button);
+    });
+  }
+  function shuffle() {
+    stopSpeech();
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    render();
+    bigLetter.textContent = "Ready to play?";
+    hint.textContent = "Tap a letter to hear its name and sound.";
+  }
+  document.getElementById("shuffleBtn").addEventListener("click", shuffle);
+  document.getElementById("stopBtn").addEventListener("click", () => {
+    stopSpeech();
+    hint.textContent = "Sound stopped. Choose another letter!";
+  });
+  document.getElementById("allBtn").addEventListener("click", async () => {
+    stopSpeech();
+    const token = runToken;
+    for (const letter of alphabet) {
+      if (token !== runToken) break;
+      bigLetter.textContent = letter + " " + letter.toLowerCase();
+      hint.textContent = examples[letter];
+      await speak(letter + ". " + examples[letter] + ".", 0.78);
+    }
+    if (token === runToken) {
+      bigLetter.textContent = "Wonderful job! 🎉";
+      hint.textContent = "You listened to the whole alphabet!";
+    }
+  });
+  render();
+  if ("speechSynthesis" in window) speechSynthesis.getVoices();
+})();
+</script>
+</body>
+</html>
