@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#fff8ef">
+<title>Happy ABC — Picture Match</title>
+<style>
+:root{--ink:#354052;--purple:#5943a4;--paper:#fffaf3}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 8% 12%,#ffe7a8 0 5px,transparent 6px),radial-gradient(circle at 92% 18%,#c8f0e5 0 7px,transparent 8px),var(--paper);color:var(--ink);font-family:"Trebuchet MS","Arial Rounded MT Bold",system-ui,sans-serif}
+main{width:min(850px,100%);margin:auto;padding:clamp(18px,4vw,38px) 16px;text-align:center}
+.top{font-size:32px}h1{margin:3px 0;color:var(--purple);font-size:clamp(30px,6vw,48px)}.subtitle{color:#687184;font-size:17px;margin:8px 0 20px}
+.progress{font-weight:800;color:#7c6cb4;font-size:14px;margin-bottom:12px}
+.letter-card{width:clamp(110px,25vw,165px);height:clamp(110px,25vw,165px);margin:0 auto 14px;border:6px solid white;border-radius:50%;display:grid;place-items:center;background:#ffd6a5;box-shadow:0 7px 0 #eed0a7;font-size:clamp(66px,14vw,100px);font-weight:900;color:#30384b}
+.prompt{font-size:clamp(18px,3vw,23px);font-weight:800;margin:10px 0 18px}
+.options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(9px,2.5vw,18px)}
+.option{min-width:0;border:4px solid white;border-radius:25px;padding:12px 8px 14px;background:#e7f5ff;box-shadow:0 6px 0 rgba(42,48,65,.09);color:var(--ink);font:inherit;font-weight:900;transition:transform .15s,outline .15s;touch-action:manipulation}
+.option:active{transform:scale(.96)}.option:focus-visible,.action:focus-visible{outline:4px solid var(--purple);outline-offset:3px}
+.pic{height:clamp(90px,22vw,155px);display:grid;place-items:center;font-size:clamp(55px,12vw,92px);line-height:1}
+.option span{display:block;margin-top:8px;font-size:clamp(14px,2.6vw,19px)}
+.option.correct{background:#d7f8dc;border-color:#65c981}.option.wrong{background:#ffe1e1;border-color:#f29c9c}
+.feedback{min-height:62px;margin:18px 0 10px;font-size:20px;font-weight:900;color:var(--purple)}
+.controls{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.action{border:0;border-radius:999px;padding:12px 19px;background:#e9e2ff;color:var(--purple);font:inherit;font-weight:900;box-shadow:0 4px 0 #d1c5ff;cursor:pointer}
+.action.primary{background:var(--purple);color:white;box-shadow:0 4px 0 #3f2c84}
+.note{font-size:12px;color:#858b98;margin-top:18px}
+@media(max-width:430px){.options{gap:7px}.option{padding:8px 4px;border-radius:18px}.pic{height:88px}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top" aria-hidden="true">🌈 🧸 ⭐</div>
+  <h1>Happy ABC!</h1>
+  <p class="subtitle">Look at the letter. Which picture starts with its sound?</p>
+  <div class="progress" id="progress">LETTER 1 OF 26</div>
+  <div class="letter-card" id="letter" aria-label="Current letter">A</div>
+  <div class="prompt">Tap the picture that starts with <span id="letterPrompt">A</span>!</div>
+  <section class="options" id="options" aria-label="Choose the matching picture"></section>
+  <div class="feedback" id="feedback" aria-live="polite">You can do it! 🌟</div>
+  <div class="controls">
+    <button class="action" id="hearBtn" type="button">🔊 Hear the letter</button>
+    <button class="action primary" id="nextBtn" type="button" hidden>➡️ Next letter</button>
+    <button class="action" id="restartBtn" type="button">🔀 New game</button>
+  </div>
+  <p class="note">Audio uses the English voice available in your browser. Turn your device volume up to hear it.</p>
+</main>
+<script>
+(() => {
+  // Each question has one correct picture and two distractors.
+  const questions = [
+    {l:"A",items:[["Apple","🍎",true],["Ball","⚽",false],["Cat","🐱",false]]},
+    {l:"B",items:[["Ball","⚽",true],["Sun","☀️",false],["Fish","🐟",false]]},
+    {l:"C",items:[["Cat","🐱",true],["Apple","🍎",false],["Dog","🐶",false]]},
+    {l:"D",items:[["Dog","🐶",true],["Moon","🌙",false],["Egg","🥚",false]]},
+    {l:"E",items:[["Egg","🥚",true],["Lion","🦁",false],["Ball","⚽",false]]},
+    {l:"F",items:[["Fish","🐟",true],["Apple","🍎",false],["Kite","🪁",false]]},
+    {l:"G",items:[["Grapes","🍇",true],["Cat","🐱",false],["Sun","☀️",false]]},
+    {l:"H",items:[["House","🏠",true],["Fish","🐟",false],["Apple","🍎",false]]},
+    {l:"I",items:[["Ice cream","🍦",true],["Dog","🐶",false],["Ball","⚽",false]]},
+    {l:"J",items:[["Juice","🧃",true],["Cat","🐱",false],["Egg","🥚",false]]},
+    {l:"K",items:[["Kite","🪁",true],["Sun","☀️",false],["Fish","🐟",false]]},
+    {l:"L",items:[["Lion","🦁",true],["Apple","🍎",false],["House","🏠",false]]},
+    {l:"M",items:[["Moon","🌙",true],["Ball","⚽",false],["Cat","🐱",false]]},
+    {l:"N",items:[["Nest","🪺",true],["Dog","🐶",false],["Ice cream","🍦",false]]},
+    {l:"O",items:[["Owl","🦉",true],["Grapes","🍇",false],["Kite","🪁",false]]},
+    {l:"P",items:[["Pizza","🍕",true],["Lion","🦁",false],["Egg","🥚",false]]},
+    {l:"Q",items:[["Queen","👑",true],["Fish","🐟",false],["Apple","🍎",false]]},
+    {l:"R",items:[["Rainbow","🌈",true],["Cat","🐱",false],["Sun","☀️",false]]},
+    {l:"S",items:[["Sun","☀️",true],["Dog","🐶",false],["Pizza","🍕",false]]},
+    {l:"T",items:[["Tiger","🐯",true],["Egg","🥚",false],["Moon","🌙",false]]},
+    {l:"U",items:[["Umbrella","☂️",true],["Ball","⚽",false],["Lion","🦁",false]]},
+    {l:"V",items:[["Van","🚐",true],["Apple","🍎",false],["Owl","🦉",false]]},
+    {l:"W",items:[["Whale","🐳",true],["Cat","🐱",false],["Juice","🧃",false]]},
+    {l:"X",items:[["Xylophone","🎵",true],["Dog","🐶",false],["Sun","☀️",false]]},
+    {l:"Y",items:[["Yo-yo","🪀",true],["Fish","🐟",false],["House","🏠",false]]},
+    {l:"Z",items:[["Zebra","🦓",true],["Apple","🍎",false],["Ball","⚽",false]]}
+  ];
+  const colors=["#e7f5ff","#fff0d9","#f0e6ff","#e1f8e8","#ffe7ef","#fff7c9"];
+  const $=id=>document.getElementById(id);
+  let current=0, order=[], answered=false, token=0;
+  function stop(){token++;if("speechSynthesis"in window)speechSynthesis.cancel();}
+  function voice(){if(!("speechSynthesis"in window))return null;const vs=speechSynthesis.getVoices();return vs.find(v=>/female|samantha|ava|karen|victoria|zira|susan|aria|jenny/i.test(v.name)&&/^en/i.test(v.lang))||vs.find(v=>/^en-US/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null;}
+  function say(text){return new Promise(resolve=>{if(!("speechSynthesis"in window)){resolve();return;}const u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=.82;u.pitch=1.12;const v=voice();if(v)u.voice=v;u.onend=resolve;u.onerror=resolve;speechSynthesis.speak(u);});}
+  function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+  function render(){
+    stop();answered=false;
+    const q=questions[current];
+    $("progress").textContent=`LETTER ${current+1} OF ${questions.length}`;
+    $("letter").textContent=q.l;$("letterPrompt").textContent=q.l;
+    $("feedback").textContent="You can do it! 🌟";$("nextBtn").hidden=true;
+    const box=$("options");box.replaceChildren();
+    order=shuffle(q.items.map((item)=>item));
+    order.forEach((item,i)=>{
+      const b=document.createElement("button");b.type="button";b.className="option";b.style.background=colors[(current+i)%colors.length];
+      b.setAttribute("aria-label",item[0]);b.innerHTML=`<div class="pic" aria-hidden="true">${item[1]}</div><span>${item[0]}</span>`;
+      b.addEventListener("click",()=>choose(item,b));box.appendChild(b);
+    });
+  }
+  async function choose(item,b){
+    if(answered)return;
+    stop();
+    if(!item[2]){
+      b.classList.add("wrong");$("feedback").textContent="Not quite! Try another picture. 💛";
+      await say("Try again.");return;
+    }
+    answered=true;b.classList.add("correct");
+    [...$("options").children].forEach(el=>el.disabled=true);
+    $("feedback").textContent=`Correct! ${item[0]}! 🎉`;
+    $("nextBtn").hidden=false;
+    await say(item[0] + "!");
+    if(token>=0){} // Keep the successful answer simple and child-friendly.
+  }
+  $("hearBtn").addEventListener("click",async()=>{stop();await say($("letter").textContent+".");});
+  $("nextBtn").addEventListener("click",()=>{current=(current+1)%questions.length;render();});
+  $("restartBtn").addEventListener("click",()=>{current=Math.floor(Math.random()*questions.length);render();});
+  render();
+})();
+</script>
+</body>
+</html>
