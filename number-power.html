@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Penguin Numbers</title>
+<style>
+:root{--bg:#DDF3FF;--card:#fff;--ink:#1E2A4A;--soft:#5B6B8C;--pri:#0F9DB8;--pri-d:#0A7489;--sun:#FFC93C;--green:#2FAE6B;--line:#B5DDF0;--ok:#E3F7EC;--bad:#FDE8E4;--coral:#E8553F;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F2236;--card:#193650;--ink:#EAF6FF;--soft:#A9C6DC;--line:#2C5575;--ok:#17402D;--bad:#4A2420}}
+:root[data-theme="dark"]{--bg:#0F2236;--card:#193650;--ink:#EAF6FF;--soft:#A9C6DC;--line:#2C5575;--ok:#17402D;--bad:#4A2420}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:ui-rounded,"Avenir Next Rounded","Trebuchet MS","Segoe UI",sans-serif;-webkit-user-select:none;user-select:none}
+button{font:inherit;color:inherit;touch-action:manipulation;cursor:pointer}
+[hidden]{display:none!important}
+main{max-width:860px;margin:0 auto;padding:16px 14px 32px}
+h1{font-size:clamp(30px,7vw,44px);margin:6px 0;line-height:1.1}
+h2{font-size:24px;margin:0 0 6px;line-height:1.3}
+.card{background:var(--card);border-radius:24px;padding:18px;box-shadow:0 4px 0 var(--line)}
+.big{font-size:72px;line-height:1;text-align:center}
+.btn{border:0;border-radius:18px;padding:14px 22px;font-weight:800;font-size:20px;background:var(--pri);color:#fff;box-shadow:0 5px 0 var(--pri-d)}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--pri-d)}
+.btn.alt{background:var(--sun);color:#1E2A4A;box-shadow:0 5px 0 #D9A400}
+.center{text-align:center}.soft{color:var(--soft)}
+.know{background:var(--bg);border-radius:16px;padding:12px 16px;margin:12px 0;text-align:left;font-size:18px;line-height:1.5}
+.top{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:19px;margin-bottom:8px}
+.dots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+.dot{width:30px;height:30px;border-radius:50%;border:3px solid var(--line);background:var(--card);font-size:13px;font-weight:800;padding:0}
+.dot.done{background:var(--pri);border-color:var(--pri-d);color:#fff}
+.dot.cur{border-color:var(--ink);transform:scale(1.15)}
+.tag{display:inline-block;background:#8E5CF0;color:#fff;border-radius:12px;padding:3px 10px;font-weight:800;font-size:14px}
+.stage{position:relative;background:#fff;color:#1E2A4A;border-radius:16px;padding:34px 12px;margin:10px 0;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:center;min-height:150px}
+.stage::before,.stage::after{content:"";position:absolute;left:10px;right:10px;height:16px;background:repeating-linear-gradient(90deg,#C4C4C4 0 16px,transparent 16px 34px)}
+.stage::before{top:8px}.stage::after{bottom:8px}
+.stage svg{max-width:100%;height:auto}
+.word{font-size:clamp(26px,6vw,44px);font-weight:700;text-align:center;line-height:1.3}
+.dg{display:grid;gap:5px}
+.dg i{width:24px;height:24px;border-radius:50%;background:#2FAE6B;border:2px solid #1E7A47;display:block}
+.qt{font-size:clamp(20px,4.5vw,28px);font-weight:800;text-align:center;margin:6px 0}
+.grid{display:grid;gap:10px;margin:12px 0}
+.g10{grid-template-columns:repeat(5,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g1{grid-template-columns:1fr}
+@media (max-width:620px){.g10{grid-template-columns:repeat(2,1fr)}}
+.o{height:68px;border:0;border-radius:12px;background:var(--c);color:#fff;font-size:clamp(24px,5vw,34px);font-weight:800;box-shadow:0 6px 0 rgba(0,0,0,.28);position:relative}
+.g3 .o{height:84px;font-size:46px}
+.g1 .o{height:62px;font-size:clamp(20px,4.5vw,28px)}
+.o:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.28)}
+.o.sel{outline:6px solid var(--ink);outline-offset:2px}
+.o.sel::after{content:"✓";position:absolute;top:2px;right:8px;font-size:18px}
+.nav{display:flex;justify-content:space-between;gap:10px}
+.msg{min-height:24px;text-align:center;font-weight:700;color:var(--coral);margin:4px 0}
+.wrong{background:var(--bad);border-radius:18px;padding:14px;margin:10px 0}
+.wrong .stage{min-height:0;padding:30px 8px}
+.wrong p{margin:6px 0}
+.yours{color:var(--coral);text-decoration:line-through;font-weight:800}
+.right{color:var(--green);font-weight:900}
+.okbox{background:var(--ok);border-radius:18px;padding:12px;margin:10px 0;font-weight:700}
+.hop{display:inline-block;animation:hop 1.6s ease-in-out infinite}
+@keyframes hop{50%{transform:translateY(-14px)}}
+@media (prefers-reduced-motion:reduce){.hop{animation:none}}
+</style>
+</head>
+<body>
+<main>
+<section id="s-start" class="card center">
+  <div class="big hop">🐧</div>
+  <h1>Penguin Numbers</h1>
+  <p class="soft" style="font-size:19px">Hi Essa! Let's explore negative numbers and powers.</p>
+  <div class="know">
+    <b>🌡️ Did you know?</b> Numbers can go below zero! On a freezing day it can be −3°C. Those are <b>negative numbers</b>.<br>
+    <b>⚡ Powers</b> are a short way to write the same number multiplied again and again: 3² means 3 × 3 = 9.
+  </div>
+  <button class="btn" id="go">Let's go!</button>
+</section>
+
+<section id="s-quiz" hidden>
+  <div class="top"><span id="tm">⏱ 0:00</span><span id="lv"></span><span id="ck">✓ 0</span></div>
+  <div class="dots" id="dots"></div>
+  <div class="card">
+    <div class="center soft" id="qn" style="font-weight:800"></div>
+    <div class="qt" id="qt"></div>
+    <div class="stage" id="vis"></div>
+    <div class="grid" id="opts"></div>
+    <div class="msg" id="msg"></div>
+    <div class="nav">
+      <button class="btn alt" id="back">Back</button>
+      <button class="btn" id="next">Next</button>
+    </div>
+  </div>
+</section>
+
+<section id="s-result" hidden>
+  <div class="card center">
+    <div class="big" id="r-emoji"></div>
+    <h1 id="r-score"></h1>
+    <p id="r-time" class="soft" style="font-weight:800"></p>
+    <p id="r-msg" style="font-size:19px;font-weight:700"></p>
+  </div>
+  <div id="r-list"></div>
+  <div class="center" style="margin-top:16px"><button class="btn" id="again">Try again with new questions</button></div>
+</section>
+</main>
+<script>
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[R(0,a.length-1)];
+const shuf=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+const SUP="⁰¹²³⁴⁵⁶⁷⁸⁹";
+const sup=n=>String(n).split("").map(c=>SUP[c]).join("");
+const fmt=n=>n<0?"−"+(-n):String(n);
+const COLS=["#E8553F","#3F9BE8","#7B3FE4","#C25BD8","#0F9DB8","#4DB887","#3C8A55","#D13B47","#F28C28","#2B3FD1"];
+let Q=[],A=[],cur=0,warned=false,t0=0,timer=null;
+const used=new Set();
+
+function line(marks){
+  const w=480,x=v=>20+(v+10)*(w-40)/20;
+  let s=`<svg viewBox="0 0 ${w} 76" width="${w}"><line x1="10" y1="34" x2="${w-10}" y2="34" stroke="#1E2A4A" stroke-width="3"/>`;
+  for(let v=-10;v<=10;v++){
+    s+=`<line x1="${x(v)}" y1="26" x2="${x(v)}" y2="42" stroke="#1E2A4A" stroke-width="${v===0?3:1.5}"/>`+
+       `<text x="${x(v)}" y="62" text-anchor="middle" font-size="${v===0?13:10.5}" font-weight="${v===0?800:600}" fill="${v<0?"#2B6CD1":"#1E2A4A"}">${fmt(v)}</text>`;
+  }
+  marks.forEach(m=>{s+=`<circle cx="${x(m.v)}" cy="34" r="9" fill="${m.c}" stroke="#1E2A4A" stroke-width="2.5"/>`});
+  return s+"</svg>";
+}
+function intOpts(ans){
+  const ok=v=>v>=-12&&v<=12&&v!==ans;
+  const pri=[-ans,ans+1,ans-1,ans+2,ans-2].filter((v,i,a)=>ok(v)&&a.indexOf(v)===i);
+  const rest=shuf([...Array(25).keys()].map(i=>i-12).filter(v=>ok(v)&&!pri.includes(v)));
+  return shuf([ans,...pri.concat(rest).slice(0,9)]).map(fmt);
+}
+function numOpts(ans,ex){
+  const s=new Set();
+  [...ex,ans+1,ans-1,ans+2,ans-2,ans*2,ans*10,ans/10,ans/2].forEach(v=>{if(v>0&&v!==ans&&Number.isInteger(v))s.add(v)});
+  for(let x=1;s.size<12;x++)if(x!==ans)s.add(x);
+  return shuf([ans,...shuf([...s]).slice(0,9)]).map(String);
+}
+const Qn=(text,vis,opts,ans,explain,cls,extra)=>Object.assign({text,vis,opts,ans,explain,cls:cls||"g10"},extra);
+const rnd=()=>{let v;do v=R(-8,8);while(v===0);return v};
+
+function gRead(){
+  const n=R(-8,8);
+  return Qn("Which number is marked by the green dot?",line([{v:n,c:"#2FAE6B"}]),intOpts(n),fmt(n),`The dot is ${n===0?"exactly on zero":n<0?`${-n} steps to the left of zero, so it is −${-n}. Numbers to the left of zero are negative`:`${n} steps to the right of zero, so it is ${n}`}.`);
+}
+function gCompare(){
+  let a,b;do{a=R(-9,9);b=R(-9,9)}while(a===b||(a>=0&&b>=0));
+  const ans=a>b?">":"<";
+  return Qn("Which symbol makes this true?",line([{v:a,c:"#2FAE6B"},{v:b,c:"#F28C28"}])+`<div class="word">🟢 ${fmt(a)}  ?  ${fmt(b)} 🟠</div>`,["<","=",">"],ans,`On the number line, numbers further to the right are bigger. ${fmt(a)} is ${a>b?"to the right of":"to the left of"} ${fmt(b)}, so ${fmt(a)} ${ans} ${fmt(b)}.`,"g3");
+}
+function gTemp(){
+  let s,d,colder=Math.random()<.5;
+  if(colder){s=R(1,7);d=R(s+1,s+7)}else{s=R(-8,-1);d=R(-s+1,-s+7)}
+  const ans=colder?s-d:s+d;
+  return Qn(`It is ${fmt(s)}°C. It gets ${d}°C ${colder?"colder":"warmer"}. What is the temperature now?`,line([{v:s,c:"#2FAE6B"}])+`<div class="word">🌡️ ${fmt(s)}°C ${colder?"⬇":"⬆"} ${d}°C</div>`,intOpts(ans),fmt(ans),`Start at ${fmt(s)} and hop ${d} ${colder?"to the left":"to the right"} on the number line. You land on ${fmt(ans)}.`);
+}
+function gOrder(){
+  let s;do s=shuf([...Array(19).keys()].map(i=>i-9)).slice(0,3);while(!s.some(v=>v<0));
+  const asc=[...s].sort((x,y)=>x-y),good=asc.map(fmt).join(",  "),bad=new Set([[...asc].reverse().map(fmt).join(",  ")]);
+  for(let t=0;bad.size<2&&t<50;t++){const p=shuf(asc).map(fmt).join(",  ");if(p!==good)bad.add(p)}
+  return Qn("Put these in order, smallest first:",`<div class="word">${shuf(s).map(fmt).join("   ")}</div>`,shuf([good,...bad]),good,`The smallest number is the one furthest to the left on the number line. In order: ${good}.`,"g1");
+}
+function gOpposite(){
+  const n=rnd();
+  return Qn(`What is the opposite of ${fmt(n)}?  (same distance from 0, on the other side)`,line([{v:n,c:"#2FAE6B"}]),intOpts(-n),fmt(-n),`${fmt(n)} is ${Math.abs(n)} steps from zero. The opposite is ${Math.abs(n)} steps on the other side: ${fmt(-n)}.`);
+}
+function gBack(){
+  const d=pick([1,2,3]),s=d*R(2,3),t=[0,1,2,3].map(i=>s-d*i),ans=s-4*d;
+  return Qn(`Counting back in ${d}s. What comes next?`,`<div class="word">${t.map(fmt).join(",  ")},  ?</div>`,intOpts(ans),fmt(ans),`Each step is ${d} less. ${fmt(t[3])} − ${d} = ${fmt(ans)}. Counting back past zero gives negative numbers.`);
+}
+function gSquare(){
+  const b=R(2,6);
+  return Qn(`What is ${b}${sup(2)}?   (${b} × ${b})`,`<div class="dg" style="grid-template-columns:repeat(${b},24px)">${"<i></i>".repeat(b*b)}</div><div class="word">${b}${sup(2)} = ${b} × ${b}</div>`,numOpts(b*b,[b*2,b*3,b*b+b,b*b-b]),String(b*b),`${b}${sup(2)} means ${b} × ${b}. The dots make ${b} rows of ${b}, which is ${b*b}.`);
+}
+function gCube(){
+  const [b,e]=pick([[2,3],[3,3],[10,2],[10,3],[2,4],[5,3]]),a=Math.pow(b,e);
+  const ex=[b*e,b+e,a/b,a*b,a+b];
+  return Qn(`What is ${b}${sup(e)}?`,`<div class="word">${Array(e).fill(b).join(" × ")} = ?</div>`,numOpts(a,ex),String(a),`${b}${sup(e)} means ${b} multiplied ${e} times: ${Array(e).fill(b).join(" × ")} = ${a}.`);
+}
+function gWrite(){
+  const b=pick([3,5,6,7,8,9]),ans=b+sup(2);
+  const bad=[...new Set([b+sup(3),b+sup(4),b+sup(5),b+sup(6),b+sup(7),"2"+sup(b),"4"+sup(b),"5"+sup(b),b+" × 2",b+" + "+b,b+" × 4"])].filter(v=>v!==ans&&v!==b+" × "+b).slice(0,9);
+  return Qn(`Write ${b} × ${b} as a power`,`<div class="word">${b} × ${b}</div>`,shuf([ans,...bad]),ans,`${b} × ${b} uses ${b} two times, so it is written ${ans}. The small raised number says how many times to use ${b}.`);
+}
+function gStar(){
+  const P=[[2,3,3,2],[2,4,4,2],[3,3,5,2],[2,5,6,2],[2,6,8,2],[10,2,2,7],[2,3,9,1],[3,2,2,3],[4,3,8,2],[5,2,3,3]];
+  let p=pick(P);if(Math.random()<.5)p=[p[2],p[3],p[0],p[1]];
+  const x=Math.pow(p[0],p[1]),y=Math.pow(p[2],p[3]),ans=x>y?">":x<y?"<":"=";
+  const ex=(b,e)=>Array(e).fill(b).join(" × ");
+  return Qn("Star Challenge: Which symbol makes this true?",`<div class="word">${p[0]}${sup(p[1])}  ?  ${p[2]}${sup(p[3])}</div><div class="word soft" style="font-size:22px">${ex(p[0],p[1])}   ?   ${ex(p[2],p[3])}</div>`,["<","=",">"],ans,`${p[0]}${sup(p[1])} = ${x} and ${p[2]}${sup(p[3])} = ${y}. So ${p[0]}${sup(p[1])} ${ans} ${p[2]}${sup(p[3])}.`,"g3",{star:true});
+}
+const SLOTS=[gRead,gCompare,gTemp,gOrder,gOpposite,gBack,gSquare,gCube,gWrite,gStar];
+function makeSet(){
+  const here=new Set();
+  return SLOTS.map(f=>{let q,t=0;do{q=f();q.sig=q.text+q.vis;t++}while((used.has(q.sig)||here.has(q.sig))&&t<80);used.add(q.sig);here.add(q.sig);return q});
+}
+const $=id=>document.getElementById(id);
+function show(id){["s-start","s-quiz","s-result"].forEach(s=>$(s).hidden=s!==id);window.scrollTo(0,0)}
+const full=i=>A[i]!=="";
+const clock=()=>{const s=Math.floor((Date.now()-t0)/1000);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
+
+function start(){
+  Q=makeSet();A=Q.map(()=>"");cur=0;warned=false;t0=Date.now();
+  clearInterval(timer);timer=setInterval(()=>{$("tm").textContent="⏱ "+clock()},1000);
+  show("s-quiz");draw();
+}
+function draw(){
+  const q=Q[cur],last=cur===Q.length-1;
+  $("qn").textContent=`Question ${cur+1} of ${Q.length}`;
+  $("lv").innerHTML=q.star?'<span class="tag">⭐ Star Challenge</span>':"";
+  $("ck").textContent="✓ "+Q.filter((_,i)=>full(i)).length;
+  $("dots").innerHTML=Q.map((_,i)=>`<button class="dot ${full(i)?"done":""} ${i===cur?"cur":""}" data-i="${i}" aria-label="Go to question ${i+1}">${i+1}</button>`).join("");
+  $("qt").textContent=q.text.replace("Star Challenge: ","");
+  $("vis").innerHTML=q.vis;
+  $("opts").className="grid "+q.cls;
+  $("opts").innerHTML=q.opts.map((o,i)=>`<button class="o ${A[cur]===o?"sel":""}" style="--c:${COLS[i%COLS.length]}" data-o="${o}">${o}</button>`).join("");
+  $("back").style.visibility=cur===0?"hidden":"visible";
+  $("next").textContent=last?"Finish ✅":"Next";
+  $("msg").textContent="";
+}
+function finish(){
+  const open=Q.map((_,i)=>i).filter(i=>!full(i));
+  if(open.length&&!warned){warned=true;$("msg").textContent=`Question ${open.map(i=>i+1).join(", ")} not answered yet. Tap its number to go back, or tap Finish again to check anyway.`;return}
+  result();
+}
+function result(){
+  clearInterval(timer);
+  const wrong=[];let score=0;
+  Q.forEach((q,i)=>{if(A[i]===q.ans)score++;else wrong.push(i)});
+  $("r-emoji").textContent=score===10?"🏆":score>=8?"🌟":score>=5?"🐧":"💪";
+  $("r-score").textContent=`${score} out of ${Q.length}`;
+  $("r-time").textContent=`Time: ${clock()}`;
+  $("r-msg").textContent=score===10?"Perfect, Essa! You are a number explorer!":score>=8?"Brilliant, Essa! Just a few to look at.":score>=5?"Good job, Essa! These ideas are new, and you are doing well.":"Great effort, Essa! These are big-kid ideas. Look at them and try again.";
+  let h="";
+  if(!wrong.length)h='<div class="okbox">No mistakes. Amazing work, Essa!</div>';
+  else{
+    h='<h2 style="margin-top:16px">Let\'s check these</h2>';
+    wrong.forEach(i=>{const q=Q[i];
+      h+=`<div class="wrong"><b>Question ${i+1}</b><p>${q.text.replace("Star Challenge: ","⭐ ")}</p><div class="stage">${q.vis}</div><p>Your answer: <span class="yours">${A[i]===""?"no answer":A[i]}</span></p><p>Correct answer: <span class="right">${q.ans}</span></p><p class="soft">${q.explain}</p></div>`;
+    });
+  }
+  $("r-list").innerHTML=h;show("s-result");
+}
+$("go").onclick=start;$("again").onclick=start;
+$("back").onclick=()=>{if(cur>0){cur--;warned=false;draw()}};
+$("next").onclick=()=>{if(cur<Q.length-1){cur++;warned=false;draw()}else finish()};
+$("dots").onclick=e=>{const b=e.target.closest("[data-i]");if(b){cur=+b.dataset.i;warned=false;draw()}};
+$("opts").onclick=e=>{const o=e.target.closest("[data-o]");if(o){A[cur]=o.dataset.o;warned=false;draw()}};
+</script>
+</body>
+</html>
